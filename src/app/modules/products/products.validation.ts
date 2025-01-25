@@ -152,11 +152,6 @@ const UpdateValidation = z.object({
         message: 'Quantity must be greater than or equal to 0',
       })
       .optional(),
-    in_stock: z
-      .boolean({
-        invalid_type_error: 'In Stock must be either true or false',
-      })
-      .optional(),
   }),
 });
 

@@ -26,7 +26,7 @@ router
 router
   .route('/:id')
   .get(ProductsController.getProductById)
-  .put(
+  .patch(
     validateRequest(ProductsValidation.UpdateValidation),
     ProductsController.updateProduct,
   )

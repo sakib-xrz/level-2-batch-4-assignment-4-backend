@@ -46,7 +46,7 @@ const getAllProducts = async (query: Record<string, unknown>) => {
     filterConditions.price = { $gte: minPrice, $lte: maxPrice };
   }
 
-  filterConditions.isDeleted = false;
+  filterConditions.is_deleted = false;
 
   const skip = (Number(page) - 1) * Number(limit);
 
@@ -56,7 +56,9 @@ const getAllProducts = async (query: Record<string, unknown>) => {
       : '-createdAt';
 
   // Field selection
-  const projection = fields ? (fields as string).split(',').join(' ') : '-__v';
+  const projection = fields
+    ? (fields as string).split(',').join(' ')
+    : '-__v -createdAt -updatedAt -is_deleted';
 
   const [data, total] = await Promise.all([
     Product.find(filterConditions)
@@ -79,7 +81,9 @@ const getAllProducts = async (query: Record<string, unknown>) => {
 };
 
 const getProductById = async (productId: string) => {
-  const result = await Product.findById(productId).lean();
+  const result = await Product.findOne({ _id: productId, is_deleted: false })
+    .select('-__v -createdAt -updatedAt -is_deleted')
+    .lean();
 
   if (!result) {
     throw new AppError(404, 'Bicycle not found');
@@ -92,20 +96,24 @@ export const updateProduct = async (
   productId: string,
   updates: Partial<ProductsInterface>,
 ) => {
+  const isProductExists = await Product.findById(productId);
+
+  if (!isProductExists || isProductExists.is_deleted) {
+    throw new AppError(404, 'Bicycle not found');
+  }
+
   const updatedProduct = await Product.findByIdAndUpdate(productId, updates, {
     new: true,
     runValidators: true,
   });
 
-  if (!updatedProduct) {
-    throw new AppError(404, 'Bicycle not found');
-  }
-
   return updatedProduct;
 };
 
 export const deleteProduct = async (productId: string) => {
-  const result = await Product.findByIdAndDelete(productId);
+  const result = await Product.findByIdAndUpdate(productId, {
+    is_deleted: true,
+  });
 
   if (!result) {
     throw new AppError(404, 'Bicycle not found');
