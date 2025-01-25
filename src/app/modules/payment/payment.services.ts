@@ -6,6 +6,7 @@ import AppError from '../../errors/AppError';
 import { Orders } from '../orders/orders.model';
 import { Payment } from './payment.model';
 import SSLCommerzPayment from 'sslcommerz-lts';
+import { updatePaymentAndOrderStatus } from './payment.utils';
 
 const store_id = config.ssl.store_id;
 const store_passwd = config.ssl.store_pass;
@@ -70,10 +71,20 @@ const CreatePaymentIntent = async (order_id: string) => {
 const VerifyPayment = async (payload) => {
   if (!payload.val_id || payload.status !== 'VALID') {
     if (payload.status === 'FAILED') {
+      await updatePaymentAndOrderStatus(
+        payload.transaction_id,
+        'FAILED',
+        'FAILED',
+      );
       return `${config.frontend_base_url}/${config.payment.fail_url}`;
     }
 
     if (payload.status === 'CANCELLED') {
+      await updatePaymentAndOrderStatus(
+        payload.transaction_id,
+        'CANCELLED',
+        'CANCELLED',
+      );
       return `${config.frontend_base_url}/${config.payment.cancel_url}`;
     }
 
@@ -87,17 +98,11 @@ const VerifyPayment = async (payload) => {
   });
 
   if (response.status !== 'VALID') {
+    await updatePaymentAndOrderStatus(response.tran_id, 'FAILED', 'FAILED');
     return `${config.frontend_base_url}/${config.payment.fail_url}`;
   }
 
-  await Payment.findOneAndUpdate(
-    { transaction_id: response.tran_id },
-    {
-      status: 'PAID',
-      payment_gateway_data: response,
-    },
-    { new: true },
-  );
+  await updatePaymentAndOrderStatus(response.tran_id, 'PAID', 'PAID');
 
   return `${config.frontend_base_url}/${config.payment.success_url}`;
 };

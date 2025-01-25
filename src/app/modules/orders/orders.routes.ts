@@ -6,12 +6,14 @@ import auth from '../../middlewares/auth';
 
 const router = express.Router();
 
-router.post(
-  '/',
-  auth('CUSTOMER', 'ADMIN'),
-  validateRequest(OrdersValidation.CreateValidation),
-  OrdersController.createOrder,
-);
+router
+  .route('/')
+  .post(
+    auth('CUSTOMER', 'ADMIN'),
+    validateRequest(OrdersValidation.CreateValidation),
+    OrdersController.createOrder,
+  )
+  .get(auth('ADMIN'), OrdersController.getAllOrders);
 
 router.get(
   '/my-orders',

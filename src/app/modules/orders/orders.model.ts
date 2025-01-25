@@ -21,6 +21,12 @@ const OrdersSchema = new mongoose.Schema<OrdersInterface>(
       enum: ['CASH_ON_DELIVERY', 'SSL_COMMERZ'],
       default: 'CASH_ON_DELIVERY',
     },
+    payment_status: {
+      type: String,
+      enum: ['PENDING', 'PAID', 'FAILED', 'CANCELLED'],
+      default: 'PENDING',
+    },
+    transaction_id: { type: String, unique: true, required: true },
     sub_total: { type: Number, required: true },
     shipping_charge: { type: Number, required: true },
     grand_total: { type: Number, required: true },

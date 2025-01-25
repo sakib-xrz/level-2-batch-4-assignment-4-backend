@@ -10,8 +10,7 @@ const PaymentSchema = new mongoose.Schema<PaymentInterface>(
     },
     status: {
       type: String,
-      required: true,
-      enum: ['PENDING', 'PAID', 'FAILED'],
+      enum: ['PENDING', 'PAID', 'FAILED', 'CANCELLED'],
       default: 'PENDING',
     },
     transaction_id: {

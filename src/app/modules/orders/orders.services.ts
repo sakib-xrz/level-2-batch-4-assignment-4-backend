@@ -7,7 +7,14 @@ import { v4 as uuidv4 } from 'uuid';
 import { Payment } from '../payment/payment.model';
 import { JwtPayload } from 'jsonwebtoken';
 
-const createOrder = async (orderData: OrdersInterface) => {
+const createOrder = async (orderData: OrdersInterface, user: JwtPayload) => {
+  if (orderData.customer.toString() !== user.id) {
+    throw new AppError(
+      401,
+      'You are not authorized to create order for this user',
+    );
+  }
+
   const product = await Product.findOne({
     _id: orderData.product,
     is_deleted: false,
@@ -28,13 +35,14 @@ const createOrder = async (orderData: OrdersInterface) => {
     product.quantity -= orderData.quantity;
     await product.save(opts);
 
+    const transaction_id = `TXN-${uuidv4()}`;
+
     orderData.sub_total = product.price * orderData.quantity;
     orderData.shipping_charge = 70;
     orderData.grand_total = orderData.sub_total + orderData.shipping_charge;
+    orderData.transaction_id = transaction_id;
 
     const order = await Orders.create([orderData], opts);
-
-    const transaction_id = `TXN-${uuidv4()}`;
 
     await Payment.create(
       [
@@ -71,4 +79,18 @@ const getMyOrders = async (user: JwtPayload) => {
   return orders;
 };
 
-export const OrdersService = { createOrder, getMyOrders };
+const getAllOrders = async () => {
+  const orders = await Orders.find()
+    .populate({
+      path: 'product',
+      select: 'name price image brand category product_model',
+    })
+    .populate({
+      path: 'customer',
+      select: 'name email',
+    });
+
+  return orders;
+};
+
+export const OrdersService = { createOrder, getMyOrders, getAllOrders };

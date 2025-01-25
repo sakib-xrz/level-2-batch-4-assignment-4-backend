@@ -6,7 +6,8 @@ import httpStatus from 'http-status';
 
 const createOrder = catchAsync(async (req: Request, res: Response) => {
   const orderData = req.body;
-  const result = await OrdersService.createOrder(orderData);
+  const user = req.user;
+  const result = await OrdersService.createOrder(orderData, user);
 
   sendResponse(res, {
     statusCode: httpStatus.CREATED,
@@ -27,4 +28,14 @@ const getMyOrders = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
-export const OrdersController = { createOrder, getMyOrders };
+const getAllOrders = catchAsync(async (req: Request, res: Response) => {
+  const result = await OrdersService.getAllOrders();
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    data: result,
+  });
+});
+
+export const OrdersController = { createOrder, getMyOrders, getAllOrders };
