@@ -8,4 +8,6 @@ router
   .route('/profile')
   .get(auth('ADMIN', 'CUSTOMER'), UserController.GetMyProfile);
 
+router.patch('/:targatedUserId/block', auth('ADMIN'), UserController.BlockUser);
+
 export const UserRoutes = router;

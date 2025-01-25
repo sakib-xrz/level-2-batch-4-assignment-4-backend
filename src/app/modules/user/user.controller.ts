@@ -16,6 +16,18 @@ const GetMyProfile = catchAsync(async (req, res) => {
   });
 });
 
-const UserController = { GetMyProfile };
+const BlockUser = catchAsync(async (req, res) => {
+  const { targatedUserId } = req.params;
+  const user = req.user;
+
+  await UserService.BlockUser(targatedUserId, user);
+
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.NO_CONTENT,
+  });
+});
+
+const UserController = { GetMyProfile, BlockUser };
 
 export default UserController;

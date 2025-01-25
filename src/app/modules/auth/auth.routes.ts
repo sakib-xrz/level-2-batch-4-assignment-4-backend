@@ -22,7 +22,7 @@ router.post('/logout', AuthController.Logout);
 
 router.post('/refresh-token', AuthController.RefreshToken);
 
-router.post(
+router.patch(
   '/change-password',
   auth('ADMIN', 'CUSTOMER'),
   validateRequest(AuthValidation.ChangePasswordSchema),

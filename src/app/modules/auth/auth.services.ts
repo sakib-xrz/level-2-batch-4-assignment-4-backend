@@ -5,6 +5,7 @@ import { LoginType, RegisterType } from './auth.interface';
 import AuthUtils from './auth.utils';
 import config from '../../config';
 import { JwtPayload } from 'jsonwebtoken';
+import bcrypt from 'bcrypt';
 
 const Login = async (payload: LoginType) => {
   const user = await User.isUserExists(payload.email);
@@ -113,13 +114,16 @@ const ChangePassword = async (
   },
   user: JwtPayload,
 ) => {
-  const isUserValid = await User.findOne({ _id: user.id, is_blocked: false });
+  const isUserValid = await User.findOne({
+    _id: user.id,
+    is_blocked: false,
+  }).select('+password');
 
   if (!isUserValid) {
     throw new AppError(httpStatus.NOT_FOUND, 'No user found');
   }
 
-  const isPasswordMatched = await User.isPasswordMatched(
+  const isPasswordMatched = await bcrypt.compare(
     payload.oldPassword,
     isUserValid.password,
   );
