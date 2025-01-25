@@ -49,14 +49,16 @@ const OrdersSchema = new mongoose_1.default.Schema({
     },
     quantity: { type: Number, required: true },
     delivery_address: { type: String, required: true },
-    payment_method: {
+    payment_status: {
         type: String,
-        enum: ['CASH_ON_DELIVERY', 'SSL_COMMERZ'],
-        default: 'CASH_ON_DELIVERY',
+        enum: ['PENDING', 'PAID', 'FAILED', 'CANCELLED'],
+        default: 'PENDING',
     },
+    transaction_id: { type: String, unique: true, required: true },
     sub_total: { type: Number, required: true },
     shipping_charge: { type: Number, required: true },
     grand_total: { type: Number, required: true },
+    is_deleted: { type: Boolean, default: false },
 }, {
     timestamps: true,
     toJSON: {

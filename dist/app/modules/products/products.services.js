@@ -8,13 +8,23 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __rest = (this && this.__rest) || function (s, e) {
+    var t = {};
+    for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0)
+        t[p] = s[p];
+    if (s != null && typeof Object.getOwnPropertySymbols === "function")
+        for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
+            if (e.indexOf(p[i]) < 0 && Object.prototype.propertyIsEnumerable.call(s, p[i]))
+                t[p[i]] = s[p[i]];
+        }
+    return t;
+};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ProductsService = exports.deleteProduct = exports.updateProduct = exports.createProducts = exports.createProduct = void 0;
 const AppError_1 = __importDefault(require("../../errors/AppError"));
-const products_constant_1 = require("./products.constant");
 const products_model_1 = require("./products.model");
 const createProduct = (productData) => __awaiter(void 0, void 0, void 0, function* () {
     const product = new products_model_1.Product(productData);
@@ -27,43 +37,76 @@ const createProducts = (productsData) => __awaiter(void 0, void 0, void 0, funct
     return products;
 });
 exports.createProducts = createProducts;
-const getAllProducts = (searchTerm) => __awaiter(void 0, void 0, void 0, function* () {
-    const andConditions = [];
-    if (searchTerm) {
-        andConditions.push({
-            $or: products_constant_1.productsSearchableFields.map((field) => ({
-                [field]: {
-                    $regex: searchTerm,
-                    $options: 'i',
-                },
-            })),
-        });
+const getAllProducts = (query) => __awaiter(void 0, void 0, void 0, function* () {
+    const { search, priceRange, sortBy, sortOrder, page = 1, limit = 10, fields } = query, restFilters = __rest(query, ["search", "priceRange", "sortBy", "sortOrder", "page", "limit", "fields"]);
+    const filterConditions = Object.assign({}, restFilters);
+    Object.keys(filterConditions).forEach((key) => {
+        if (filterConditions[key] === 'true' || filterConditions[key] === 'false') {
+            filterConditions[key] = filterConditions[key] === 'true';
+        }
+    });
+    if (search) {
+        filterConditions.$or = [
+            { name: { $regex: search, $options: 'i' } },
+            { brand: { $regex: search, $options: 'i' } },
+            { category: { $regex: search, $options: 'i' } },
+        ];
     }
-    const whereConditions = andConditions.length > 0 ? { $and: andConditions } : {};
-    const result = yield products_model_1.Product.find(whereConditions);
-    const total = yield products_model_1.Product.countDocuments(whereConditions);
-    return { meta: { total }, data: result };
+    if (priceRange) {
+        const [minPrice, maxPrice] = priceRange.split('-').map(Number);
+        filterConditions.price = { $gte: minPrice, $lte: maxPrice };
+    }
+    filterConditions.is_deleted = false;
+    const skip = (Number(page) - 1) * Number(limit);
+    const sortCondition = sortBy && sortOrder
+        ? `${sortOrder === 'asc' ? '' : '-'}${sortBy}`
+        : '-createdAt';
+    // Field selection
+    const projection = fields
+        ? fields.split(',').join(' ')
+        : '-__v -createdAt -updatedAt -is_deleted';
+    const [data, total] = yield Promise.all([
+        products_model_1.Product.find(filterConditions)
+            .sort(sortCondition)
+            .skip(skip)
+            .limit(Number(limit))
+            .select(projection),
+        products_model_1.Product.countDocuments(filterConditions),
+    ]);
+    return {
+        meta: {
+            total,
+            page: Number(page),
+            limit: Number(limit),
+        },
+        data,
+    };
 });
 const getProductById = (productId) => __awaiter(void 0, void 0, void 0, function* () {
-    const result = yield products_model_1.Product.findById(productId).lean();
+    const result = yield products_model_1.Product.findOne({ _id: productId, is_deleted: false })
+        .select('-__v -createdAt -updatedAt -is_deleted')
+        .lean();
     if (!result) {
         throw new AppError_1.default(404, 'Bicycle not found');
     }
     return result;
 });
 const updateProduct = (productId, updates) => __awaiter(void 0, void 0, void 0, function* () {
+    const isProductExists = yield products_model_1.Product.findById(productId);
+    if (!isProductExists || isProductExists.is_deleted) {
+        throw new AppError_1.default(404, 'Bicycle not found');
+    }
     const updatedProduct = yield products_model_1.Product.findByIdAndUpdate(productId, updates, {
         new: true,
         runValidators: true,
     });
-    if (!updatedProduct) {
-        throw new AppError_1.default(404, 'Bicycle not found');
-    }
     return updatedProduct;
 });
 exports.updateProduct = updateProduct;
 const deleteProduct = (productId) => __awaiter(void 0, void 0, void 0, function* () {
-    const result = yield products_model_1.Product.findByIdAndDelete(productId);
+    const result = yield products_model_1.Product.findByIdAndUpdate(productId, {
+        is_deleted: true,
+    });
     if (!result) {
         throw new AppError_1.default(404, 'Bicycle not found');
     }

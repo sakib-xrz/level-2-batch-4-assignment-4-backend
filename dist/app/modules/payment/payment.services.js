@@ -20,6 +20,7 @@ const AppError_1 = __importDefault(require("../../errors/AppError"));
 const orders_model_1 = require("../orders/orders.model");
 const payment_model_1 = require("./payment.model");
 const sslcommerz_lts_1 = __importDefault(require("sslcommerz-lts"));
+const payment_utils_1 = require("./payment.utils");
 const store_id = config_1.default.ssl.store_id;
 const store_passwd = config_1.default.ssl.store_pass;
 const is_live = false;
@@ -46,7 +47,7 @@ const CreatePaymentIntent = (order_id) => __awaiter(void 0, void 0, void 0, func
         cancel_url: `${config_1.default.backend_base_url}/payment/ipn_listener`,
         ipn_url: `${config_1.default.backend_base_url}/payment/ipn_listener`,
         shipping_method: 'N/A',
-        product_name: 'Appointment',
+        product_name: 'Bicycle',
         product_category: 'N/A',
         product_profile: 'N/A',
         cus_name: order.customer.name,
@@ -74,9 +75,11 @@ const CreatePaymentIntent = (order_id) => __awaiter(void 0, void 0, void 0, func
 const VerifyPayment = (payload) => __awaiter(void 0, void 0, void 0, function* () {
     if (!payload.val_id || payload.status !== 'VALID') {
         if (payload.status === 'FAILED') {
+            yield (0, payment_utils_1.updatePaymentAndOrderStatus)(payload.transaction_id, 'FAILED', 'FAILED');
             return `${config_1.default.frontend_base_url}/${config_1.default.payment.fail_url}`;
         }
         if (payload.status === 'CANCELLED') {
+            yield (0, payment_utils_1.updatePaymentAndOrderStatus)(payload.transaction_id, 'CANCELLED', 'CANCELLED');
             return `${config_1.default.frontend_base_url}/${config_1.default.payment.cancel_url}`;
         }
         throw new AppError_1.default(http_status_1.default.BAD_REQUEST, 'Invalid IPN request');
@@ -86,12 +89,10 @@ const VerifyPayment = (payload) => __awaiter(void 0, void 0, void 0, function* (
         val_id: payload.val_id,
     });
     if (response.status !== 'VALID') {
+        yield (0, payment_utils_1.updatePaymentAndOrderStatus)(response.tran_id, 'FAILED', 'FAILED');
         return `${config_1.default.frontend_base_url}/${config_1.default.payment.fail_url}`;
     }
-    yield payment_model_1.Payment.findOneAndUpdate({ transaction_id: response.tran_id }, {
-        status: 'PAID',
-        payment_gateway_data: response,
-    }, { new: true });
+    yield (0, payment_utils_1.updatePaymentAndOrderStatus)(response.tran_id, 'PAID', 'PAID', response);
     return `${config_1.default.frontend_base_url}/${config_1.default.payment.success_url}`;
 });
 const PaymentService = { CreatePaymentIntent, VerifyPayment };

@@ -6,6 +6,7 @@ import { Orders } from './orders.model';
 import { v4 as uuidv4 } from 'uuid';
 import { Payment } from '../payment/payment.model';
 import { JwtPayload } from 'jsonwebtoken';
+import QueryBuilder from '../../builder/QueryBuilder';
 
 const createOrder = async (orderData: OrdersInterface, user: JwtPayload) => {
   if (orderData.customer.toString() !== user.id) {
@@ -62,9 +63,22 @@ const createOrder = async (orderData: OrdersInterface, user: JwtPayload) => {
   }
 };
 
-const getMyOrders = async (user: JwtPayload) => {
-  const orders = await Orders.find({ customer: user.id })
-    .populate({
+const getMyOrders = async (
+  user: JwtPayload,
+  query: Record<string, unknown>,
+) => {
+  const queryBuilder = new QueryBuilder(
+    Orders.find({ customer: user.id }),
+    query,
+  );
+
+  const orders = await queryBuilder
+    .search(['phone', 'transaction_id'])
+    .filter()
+    .sort()
+    .paginate()
+    .fields()
+    .modelQuery.populate({
       path: 'product',
       select: 'name price image brand category product_model',
     })
@@ -73,12 +87,27 @@ const getMyOrders = async (user: JwtPayload) => {
       select: 'name email',
     });
 
-  return orders;
+  const total = await queryBuilder.getCountQuery();
+
+  return {
+    meta: {
+      total,
+      ...queryBuilder.getPaginationInfo(),
+    },
+    data: orders,
+  };
 };
 
-const getAllOrders = async () => {
-  const orders = await Orders.find()
-    .populate({
+const getAllOrders = async (query: Record<string, unknown>) => {
+  const queryBuilder = new QueryBuilder(Orders.find(), query);
+
+  const orders = await queryBuilder
+    .search(['phone', 'transaction_id'])
+    .filter()
+    .sort()
+    .paginate()
+    .fields()
+    .modelQuery.populate({
       path: 'product',
       select: 'name price image brand category product_model',
     })
@@ -87,7 +116,15 @@ const getAllOrders = async () => {
       select: 'name email',
     });
 
-  return orders;
+  const total = await queryBuilder.getCountQuery();
+
+  return {
+    meta: {
+      total,
+      ...queryBuilder.getPaginationInfo(),
+    },
+    data: orders,
+  };
 };
 
 export const OrdersService = { createOrder, getMyOrders, getAllOrders };

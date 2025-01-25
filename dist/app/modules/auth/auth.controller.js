@@ -63,5 +63,32 @@ const Logout = (0, catchAsync_1.default)((_req, res) => __awaiter(void 0, void 0
         message: 'Logout successful',
     });
 }));
-const AuthController = { Login, Register, Logout };
+const RefreshToken = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { REFRESH_TOKEN } = req.cookies;
+    const result = yield auth_services_1.default.RefreshToken(REFRESH_TOKEN);
+    const { accessToken } = result;
+    (0, sendResponse_1.default)(res, {
+        success: true,
+        statusCode: http_status_1.default.OK,
+        message: 'Token refreshed successfully',
+        data: {
+            token: accessToken,
+        },
+    });
+}));
+const ChangePassword = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    yield auth_services_1.default.ChangePassword(req.body, req.user);
+    (0, sendResponse_1.default)(res, {
+        success: true,
+        statusCode: http_status_1.default.OK,
+        message: 'Password changed successfully',
+    });
+}));
+const AuthController = {
+    Login,
+    Register,
+    Logout,
+    RefreshToken,
+    ChangePassword,
+};
 exports.default = AuthController;

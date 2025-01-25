@@ -3,10 +3,14 @@ import { FilterQuery, Query } from 'mongoose';
 class QueryBuilder<T> {
   public modelQuery: Query<T[], T>;
   public query: Record<string, unknown>;
+  public page: number;
+  public limit: number;
 
   constructor(modelQuery: Query<T[], T>, query: Record<string, unknown>) {
     this.modelQuery = modelQuery;
     this.query = query;
+    this.page = Number(query.page) || 1;
+    this.limit = Number(query.limit) || 10;
   }
 
   search(searchableFields: string[]) {
@@ -30,14 +34,7 @@ class QueryBuilder<T> {
   filter() {
     const queryObj = { ...this.query };
 
-    const excludeFields = [
-      'search',
-      'sortBy',
-      'sortOrder',
-      'limit',
-      'page',
-      'fields',
-    ];
+    const excludeFields = ['search', 'sort', 'limit', 'page', 'fields'];
 
     excludeFields.forEach((el) => delete queryObj[el]);
 
@@ -47,25 +44,17 @@ class QueryBuilder<T> {
   }
 
   sort() {
-    const sortBy = this?.query?.sortBy as string;
-    const sortOrder = this?.query?.sortOrder as string;
-
-    if (sortBy) {
-      const order = sortOrder === 'asc' ? '' : '-';
-      this.modelQuery = this.modelQuery.sort(`${order}${sortBy}`);
-    } else {
-      this.modelQuery = this.modelQuery.sort('-createdAt');
-    }
+    const sort =
+      (this?.query?.sort as string)?.split(',')?.join(' ') || '-createdAt';
+    this.modelQuery = this.modelQuery.sort(sort as string);
 
     return this;
   }
 
   paginate() {
-    const page = Number(this?.query?.page) || 1;
-    const limit = Number(this?.query?.limit) || 10;
-    const skip = (page - 1) * limit;
+    const skip = (this.page - 1) * this.limit;
 
-    this.modelQuery = this.modelQuery.skip(skip).limit(limit);
+    this.modelQuery = this.modelQuery.skip(skip).limit(this.limit);
 
     return this;
   }
@@ -76,6 +65,18 @@ class QueryBuilder<T> {
 
     this.modelQuery = this.modelQuery.select(fields);
     return this;
+  }
+
+  getCountQuery() {
+    const baseQuery = this.modelQuery.getQuery();
+    return this.modelQuery.model.countDocuments(baseQuery);
+  }
+
+  getPaginationInfo() {
+    return {
+      page: this.page,
+      limit: this.limit,
+    };
   }
 }
 

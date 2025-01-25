@@ -19,22 +19,26 @@ const createOrder = catchAsync(async (req: Request, res: Response) => {
 
 const getMyOrders = catchAsync(async (req: Request, res: Response) => {
   const user = req.user;
-  const result = await OrdersService.getMyOrders(user);
+  const result = await OrdersService.getMyOrders(user, req.query);
 
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
-    data: result,
+    message: 'My orders fetched successfully',
+    meta: result.meta,
+    data: result.data,
   });
 });
 
 const getAllOrders = catchAsync(async (req: Request, res: Response) => {
-  const result = await OrdersService.getAllOrders();
+  const result = await OrdersService.getAllOrders(req.query);
 
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
-    data: result,
+    message: 'Orders fetched successfully',
+    meta: result.meta,
+    data: result.data,
   });
 });
 

@@ -34,13 +34,6 @@ const CreateValidation = z.object({
       .min(5, {
         message: 'Delivery address must be at least 5 characters long',
       }),
-    payment_method: z
-      .enum(['CASH_ON_DELIVERY', 'SSL_COMMERZ'], {
-        required_error: 'Payment method is required',
-        invalid_type_error:
-          'Payment method must be CASH_ON_DELIVERY or SSL_COMMERZ',
-      })
-      .default('CASH_ON_DELIVERY'),
   }),
 });
 

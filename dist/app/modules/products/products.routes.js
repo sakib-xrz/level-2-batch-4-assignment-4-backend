@@ -20,6 +20,6 @@ router
 router
     .route('/:id')
     .get(products_controller_1.ProductsController.getProductById)
-    .put((0, validateRequest_1.default)(products_validation_1.default.UpdateValidation), products_controller_1.ProductsController.updateProduct)
-    .delete(products_controller_1.ProductsController.deleteProduct);
+    .patch((0, auth_1.default)('ADMIN'), (0, validateRequest_1.default)(products_validation_1.default.UpdateValidation), products_controller_1.ProductsController.updateProduct)
+    .delete((0, auth_1.default)('ADMIN'), products_controller_1.ProductsController.deleteProduct);
 exports.ProductsRoutes = router;

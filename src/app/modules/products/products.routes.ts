@@ -27,9 +27,10 @@ router
   .route('/:id')
   .get(ProductsController.getProductById)
   .patch(
+    auth('ADMIN'),
     validateRequest(ProductsValidation.UpdateValidation),
     ProductsController.updateProduct,
   )
-  .delete(ProductsController.deleteProduct);
+  .delete(auth('ADMIN'), ProductsController.deleteProduct);
 
 export const ProductsRoutes = router;

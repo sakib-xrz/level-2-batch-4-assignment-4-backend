@@ -22,6 +22,7 @@ const ProductsSchema = new mongoose_1.default.Schema({
     description: { type: String, required: true },
     quantity: { type: Number, required: true },
     in_stock: { type: Boolean },
+    is_deleted: { type: Boolean, default: false },
 }, {
     timestamps: true,
     toJSON: {

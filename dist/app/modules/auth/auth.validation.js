@@ -38,5 +38,17 @@ const RegisterSchema = zod_1.z.object({
             .min(6, 'Password must be at least 6 characters'),
     }),
 });
-const AuthValidation = { LoginSchema, RegisterSchema };
+const ChangePasswordSchema = zod_1.z.object({
+    body: zod_1.z.object({
+        oldPassword: zod_1.z.string({
+            required_error: 'Old password is required',
+            invalid_type_error: 'Old password must be a string',
+        }),
+        newPassword: zod_1.z.string({
+            required_error: 'New password is required',
+            invalid_type_error: 'New password must be a string',
+        }),
+    }),
+});
+const AuthValidation = { LoginSchema, RegisterSchema, ChangePasswordSchema };
 exports.default = AuthValidation;

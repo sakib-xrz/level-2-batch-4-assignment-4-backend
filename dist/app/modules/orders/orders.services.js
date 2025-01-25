@@ -19,59 +19,92 @@ const products_model_1 = require("../products/products.model");
 const orders_model_1 = require("./orders.model");
 const uuid_1 = require("uuid");
 const payment_model_1 = require("../payment/payment.model");
-function createOrder(orderData) {
-    return __awaiter(this, void 0, void 0, function* () {
-        const product = yield products_model_1.Product.findById(orderData.product);
-        if (!product) {
-            throw new Error('Product not found');
-        }
-        if (product.quantity < orderData.quantity) {
-            throw new AppError_1.default(400, 'Insufficient stock');
-        }
-        const session = yield mongoose_1.default.startSession();
-        try {
-            session.startTransaction();
-            const opts = { session };
-            product.quantity -= orderData.quantity;
-            yield product.save(opts);
-            orderData.sub_total = product.price * orderData.quantity;
-            orderData.shipping_charge = 70;
-            orderData.grand_total = orderData.sub_total + orderData.shipping_charge;
-            const order = yield orders_model_1.Orders.create([orderData], opts);
-            const transaction_id = `TXN-${(0, uuid_1.v4)()}`;
-            yield payment_model_1.Payment.create([
-                {
-                    order_id: order[0]._id,
-                    transaction_id,
-                    amount: orderData.grand_total,
-                },
-            ], opts);
-            yield session.commitTransaction();
-            session.endSession();
-            return order;
-        }
-        catch (error) {
-            yield session.abortTransaction();
-            session.endSession();
-            throw error;
-        }
+const QueryBuilder_1 = __importDefault(require("../../builder/QueryBuilder"));
+const createOrder = (orderData, user) => __awaiter(void 0, void 0, void 0, function* () {
+    if (orderData.customer.toString() !== user.id) {
+        throw new AppError_1.default(401, "You can't create order for another customer");
+    }
+    const product = yield products_model_1.Product.findOne({
+        _id: orderData.product,
+        is_deleted: false,
     });
-}
-const getRevenue = () => __awaiter(void 0, void 0, void 0, function* () {
-    const result = yield orders_model_1.Orders.aggregate([
-        {
-            $group: {
-                _id: null,
-                totalRevenue: { $sum: '$totalPrice' },
+    if (!product) {
+        throw new Error('Product not found');
+    }
+    if (product.quantity < orderData.quantity) {
+        throw new AppError_1.default(400, 'Insufficient stock');
+    }
+    const session = yield mongoose_1.default.startSession();
+    try {
+        session.startTransaction();
+        const opts = { session };
+        product.quantity -= orderData.quantity;
+        yield product.save(opts);
+        const transaction_id = `TXN-${(0, uuid_1.v4)().slice(0, 8)}`;
+        orderData.sub_total = product.price * orderData.quantity;
+        orderData.shipping_charge = 70;
+        orderData.grand_total = orderData.sub_total + orderData.shipping_charge;
+        orderData.transaction_id = transaction_id;
+        const order = yield orders_model_1.Orders.create([orderData], opts);
+        yield payment_model_1.Payment.create([
+            {
+                order_id: order[0]._id,
+                transaction_id,
+                amount: orderData.grand_total,
             },
-        },
-        {
-            $project: {
-                _id: 0,
-                totalRevenue: 1,
-            },
-        },
-    ]);
-    return result[0] || { totalRevenue: 0 };
+        ], opts);
+        yield session.commitTransaction();
+        session.endSession();
+        return order;
+    }
+    catch (error) {
+        yield session.abortTransaction();
+        session.endSession();
+        throw error;
+    }
 });
-exports.OrdersService = { createOrder, getRevenue };
+const getMyOrders = (user, query) => __awaiter(void 0, void 0, void 0, function* () {
+    const queryBuilder = new QueryBuilder_1.default(orders_model_1.Orders.find({ customer: user.id }), query);
+    const orders = yield queryBuilder
+        .search(['phone', 'transaction_id'])
+        .filter()
+        .sort()
+        .paginate()
+        .fields()
+        .modelQuery.populate({
+        path: 'product',
+        select: 'name price image brand category product_model',
+    })
+        .populate({
+        path: 'customer',
+        select: 'name email',
+    });
+    const total = yield queryBuilder.getCountQuery();
+    return {
+        meta: Object.assign({ total }, queryBuilder.getPaginationInfo()),
+        data: orders,
+    };
+});
+const getAllOrders = (query) => __awaiter(void 0, void 0, void 0, function* () {
+    const queryBuilder = new QueryBuilder_1.default(orders_model_1.Orders.find(), query);
+    const orders = yield queryBuilder
+        .search(['phone', 'transaction_id'])
+        .filter()
+        .sort()
+        .paginate()
+        .fields()
+        .modelQuery.populate({
+        path: 'product',
+        select: 'name price image brand category product_model',
+    })
+        .populate({
+        path: 'customer',
+        select: 'name email',
+    });
+    const total = yield queryBuilder.getCountQuery();
+    return {
+        meta: Object.assign({ total }, queryBuilder.getPaginationInfo()),
+        data: orders,
+    };
+});
+exports.OrdersService = { createOrder, getMyOrders, getAllOrders };

@@ -10,6 +10,9 @@ const orders_validation_1 = require("./orders.validation");
 const orders_controller_1 = require("./orders.controller");
 const auth_1 = __importDefault(require("../../middlewares/auth"));
 const router = express_1.default.Router();
-router.post('/', (0, auth_1.default)('CUSTOMER', 'ADMIN'), (0, validateRequest_1.default)(orders_validation_1.OrdersValidation.CreateValidation), orders_controller_1.OrdersController.createOrder);
-router.get('/revenue', orders_controller_1.OrdersController.getRevenue);
+router
+    .route('/')
+    .post((0, auth_1.default)('CUSTOMER', 'ADMIN'), (0, validateRequest_1.default)(orders_validation_1.OrdersValidation.CreateValidation), orders_controller_1.OrdersController.createOrder)
+    .get((0, auth_1.default)('ADMIN'), orders_controller_1.OrdersController.getAllOrders);
+router.get('/my-orders', (0, auth_1.default)('CUSTOMER', 'ADMIN'), orders_controller_1.OrdersController.getMyOrders);
 exports.OrdersRoutes = router;

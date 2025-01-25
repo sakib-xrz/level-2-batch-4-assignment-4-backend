@@ -19,7 +19,8 @@ const sendResponse_1 = __importDefault(require("../../utils/sendResponse"));
 const http_status_1 = __importDefault(require("http-status"));
 const createOrder = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const orderData = req.body;
-    const result = yield orders_services_1.OrdersService.createOrder(orderData);
+    const user = req.user;
+    const result = yield orders_services_1.OrdersService.createOrder(orderData, user);
     (0, sendResponse_1.default)(res, {
         statusCode: http_status_1.default.CREATED,
         success: true,
@@ -27,13 +28,25 @@ const createOrder = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, vo
         data: result,
     });
 }));
-const getRevenue = (0, catchAsync_1.default)((_req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const result = yield orders_services_1.OrdersService.getRevenue();
+const getMyOrders = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const user = req.user;
+    const result = yield orders_services_1.OrdersService.getMyOrders(user, req.query);
     (0, sendResponse_1.default)(res, {
         statusCode: http_status_1.default.OK,
         success: true,
-        message: 'Revenue fetched successfully',
-        data: result,
+        message: 'My orders fetched successfully',
+        meta: result.meta,
+        data: result.data,
     });
 }));
-exports.OrdersController = { createOrder, getRevenue };
+const getAllOrders = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const result = yield orders_services_1.OrdersService.getAllOrders(req.query);
+    (0, sendResponse_1.default)(res, {
+        statusCode: http_status_1.default.OK,
+        success: true,
+        message: 'Orders fetched successfully',
+        meta: result.meta,
+        data: result.data,
+    });
+}));
+exports.OrdersController = { createOrder, getMyOrders, getAllOrders };

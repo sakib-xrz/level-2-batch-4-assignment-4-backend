@@ -11,5 +11,10 @@ const CreateToken = (jwtPayload, secret, expiresIn) => {
         expiresIn,
     });
 };
-const AuthUtils = { CreateToken };
+const VerifyToken = (token, secret) => {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    return jsonwebtoken_1.default.verify(token, secret);
+};
+const AuthUtils = { CreateToken, VerifyToken };
 exports.default = AuthUtils;
