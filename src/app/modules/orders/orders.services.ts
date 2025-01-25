@@ -5,8 +5,9 @@ import { OrdersInterface } from './orders.interface';
 import { Orders } from './orders.model';
 import { v4 as uuidv4 } from 'uuid';
 import { Payment } from '../payment/payment.model';
+import { JwtPayload } from 'jsonwebtoken';
 
-async function createOrder(orderData: OrdersInterface) {
+const createOrder = async (orderData: OrdersInterface) => {
   const product = await Product.findOne({
     _id: orderData.product,
     is_deleted: false,
@@ -54,25 +55,20 @@ async function createOrder(orderData: OrdersInterface) {
     session.endSession();
     throw error;
   }
-}
-
-const getRevenue = async () => {
-  const result = await Orders.aggregate([
-    {
-      $group: {
-        _id: null,
-        totalRevenue: { $sum: '$totalPrice' },
-      },
-    },
-    {
-      $project: {
-        _id: 0,
-        totalRevenue: 1,
-      },
-    },
-  ]);
-
-  return result[0] || { totalRevenue: 0 };
 };
 
-export const OrdersService = { createOrder, getRevenue };
+const getMyOrders = async (user: JwtPayload) => {
+  const orders = await Orders.find({ customer: user.id })
+    .populate({
+      path: 'product',
+      select: 'name price image brand category product_model',
+    })
+    .populate({
+      path: 'customer',
+      select: 'name email',
+    });
+
+  return orders;
+};
+
+export const OrdersService = { createOrder, getMyOrders };

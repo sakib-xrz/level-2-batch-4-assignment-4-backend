@@ -13,6 +13,10 @@ router.post(
   OrdersController.createOrder,
 );
 
-router.get('/revenue', OrdersController.getRevenue);
+router.get(
+  '/my-orders',
+  auth('CUSTOMER', 'ADMIN'),
+  OrdersController.getMyOrders,
+);
 
 export const OrdersRoutes = router;

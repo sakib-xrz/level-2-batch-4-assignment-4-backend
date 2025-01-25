@@ -16,15 +16,15 @@ const createOrder = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
-const getRevenue = catchAsync(async (_req: Request, res: Response) => {
-  const result = await OrdersService.getRevenue();
+const getMyOrders = catchAsync(async (req: Request, res: Response) => {
+  const user = req.user;
+  const result = await OrdersService.getMyOrders(user);
 
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
-    message: 'Revenue fetched successfully',
     data: result,
   });
 });
 
-export const OrdersController = { createOrder, getRevenue };
+export const OrdersController = { createOrder, getMyOrders };
