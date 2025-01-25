@@ -40,7 +40,7 @@ const CreatePaymentIntent = async (order_id: string) => {
     cancel_url: `${config.backend_base_url}/payment/ipn_listener`,
     ipn_url: `${config.backend_base_url}/payment/ipn_listener`,
     shipping_method: 'N/A',
-    product_name: 'Appointment',
+    product_name: 'Bicycle',
     product_category: 'N/A',
     product_profile: 'N/A',
     cus_name: order.customer.name,
