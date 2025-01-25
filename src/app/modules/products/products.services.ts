@@ -1,5 +1,4 @@
 import AppError from '../../errors/AppError';
-import { productsSearchableFields } from './products.constant';
 import { ProductsInterface } from './products.interface';
 import { Product } from './products.model';
 
@@ -14,26 +13,72 @@ export const createProducts = async (productsData: ProductsInterface[]) => {
   return products;
 };
 
-const getAllProducts = async (searchTerm: string) => {
-  const andConditions = [];
+const getAllProducts = async (query: Record<string, unknown>) => {
+  const {
+    search,
+    priceRange,
+    sortBy,
+    sortOrder,
+    page = 1,
+    limit = 10,
+    fields,
+    ...restFilters
+  } = query;
 
-  if (searchTerm) {
-    andConditions.push({
-      $or: productsSearchableFields.map((field) => ({
-        [field]: {
-          $regex: searchTerm,
-          $options: 'i',
-        },
-      })),
-    });
+  const filterConditions: Record<string, unknown> = { ...restFilters };
+
+  // Convert specific filters to their appropriate types or formats
+  Object.keys(filterConditions).forEach((key) => {
+    if (filterConditions[key] === 'true' || filterConditions[key] === 'false') {
+      filterConditions[key] = filterConditions[key] === 'true';
+    }
+  });
+
+  // Search functionality
+  if (search) {
+    filterConditions.$or = [
+      { name: { $regex: search, $options: 'i' } },
+      { brand: { $regex: search, $options: 'i' } },
+      { category: { $regex: search, $options: 'i' } },
+    ];
   }
 
-  const whereConditions =
-    andConditions.length > 0 ? { $and: andConditions } : {};
+  // Price range filter
+  if (priceRange) {
+    const [minPrice, maxPrice] = (priceRange as string).split('-').map(Number);
+    filterConditions.price = { $gte: minPrice, $lte: maxPrice };
+  }
 
-  const result = await Product.find(whereConditions);
-  const total = await Product.countDocuments(whereConditions);
-  return { meta: { total }, data: result };
+  // Pagination
+  const skip = (Number(page) - 1) * Number(limit);
+
+  // Sorting
+  const sortCondition =
+    sortBy && sortOrder
+      ? `${sortOrder === 'asc' ? '' : '-'}${sortBy}`
+      : '-createdAt';
+
+  // Field selection
+  const projection = fields ? (fields as string).split(',').join(' ') : '-__v';
+
+  const [data, total] = await Promise.all([
+    Product.find(filterConditions)
+      .sort(sortCondition)
+      .skip(skip)
+      .limit(Number(limit))
+      .select(projection),
+
+    Product.countDocuments(filterConditions),
+  ]);
+
+  return {
+    meta: {
+      total,
+      page: Number(page),
+      limit: Number(limit),
+    },
+    data,
+  };
 };
 
 const getProductById = async (productId: string) => {
