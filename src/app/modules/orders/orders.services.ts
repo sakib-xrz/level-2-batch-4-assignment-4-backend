@@ -55,7 +55,7 @@ const createOrder = async (orderData: OrdersInterface, user: JwtPayload) => {
 
     await session.commitTransaction();
     session.endSession();
-    return order;
+    return order[0];
   } catch (error) {
     await session.abortTransaction();
     session.endSession();

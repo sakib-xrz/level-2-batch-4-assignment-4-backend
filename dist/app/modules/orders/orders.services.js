@@ -55,7 +55,7 @@ const createOrder = (orderData, user) => __awaiter(void 0, void 0, void 0, funct
         ], opts);
         yield session.commitTransaction();
         session.endSession();
-        return order;
+        return order[0];
     }
     catch (error) {
         yield session.abortTransaction();
