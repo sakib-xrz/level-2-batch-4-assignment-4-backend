@@ -27,14 +27,12 @@ const getAllProducts = async (query: Record<string, unknown>) => {
 
   const filterConditions: Record<string, unknown> = { ...restFilters };
 
-  // Convert specific filters to their appropriate types or formats
   Object.keys(filterConditions).forEach((key) => {
     if (filterConditions[key] === 'true' || filterConditions[key] === 'false') {
       filterConditions[key] = filterConditions[key] === 'true';
     }
   });
 
-  // Search functionality
   if (search) {
     filterConditions.$or = [
       { name: { $regex: search, $options: 'i' } },
@@ -43,16 +41,15 @@ const getAllProducts = async (query: Record<string, unknown>) => {
     ];
   }
 
-  // Price range filter
   if (priceRange) {
     const [minPrice, maxPrice] = (priceRange as string).split('-').map(Number);
     filterConditions.price = { $gte: minPrice, $lte: maxPrice };
   }
 
-  // Pagination
+  filterConditions.isDeleted = false;
+
   const skip = (Number(page) - 1) * Number(limit);
 
-  // Sorting
   const sortCondition =
     sortBy && sortOrder
       ? `${sortOrder === 'asc' ? '' : '-'}${sortBy}`
