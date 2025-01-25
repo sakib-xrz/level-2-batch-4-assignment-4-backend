@@ -12,6 +12,12 @@ const CreateToken = (
   });
 };
 
-const AuthUtils = { CreateToken };
+const VerifyToken = (token: string, secret: string) => {
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
+  return jwt.verify(token, secret);
+};
+
+const AuthUtils = { CreateToken, VerifyToken };
 
 export default AuthUtils;

@@ -39,6 +39,19 @@ const RegisterSchema = z.object({
   }),
 });
 
-const AuthValidation = { LoginSchema, RegisterSchema };
+const ChangePasswordSchema = z.object({
+  body: z.object({
+    oldPassword: z.string({
+      required_error: 'Old password is required',
+      invalid_type_error: 'Old password must be a string',
+    }),
+    newPassword: z.string({
+      required_error: 'New password is required',
+      invalid_type_error: 'New password must be a string',
+    }),
+  }),
+});
+
+const AuthValidation = { LoginSchema, RegisterSchema, ChangePasswordSchema };
 
 export default AuthValidation;

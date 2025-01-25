@@ -62,6 +62,39 @@ const Logout = catchAsync(async (_req, res) => {
   });
 });
 
-const AuthController = { Login, Register, Logout };
+const RefreshToken = catchAsync(async (req, res) => {
+  const { REFRESH_TOKEN } = req.cookies;
+
+  const result = await AuthService.RefreshToken(REFRESH_TOKEN);
+
+  const { accessToken } = result;
+
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: 'Token refreshed successfully',
+    data: {
+      token: accessToken,
+    },
+  });
+});
+
+const ChangePassword = catchAsync(async (req, res) => {
+  await AuthService.ChangePassword(req.body, req.user);
+
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: 'Password changed successfully',
+  });
+});
+
+const AuthController = {
+  Login,
+  Register,
+  Logout,
+  RefreshToken,
+  ChangePassword,
+};
 
 export default AuthController;

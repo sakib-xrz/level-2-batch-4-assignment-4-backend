@@ -9,10 +9,7 @@ import { JwtPayload } from 'jsonwebtoken';
 
 const createOrder = async (orderData: OrdersInterface, user: JwtPayload) => {
   if (orderData.customer.toString() !== user.id) {
-    throw new AppError(
-      401,
-      'You are not authorized to create order for this user',
-    );
+    throw new AppError(401, "You can't create order for another customer");
   }
 
   const product = await Product.findOne({
@@ -35,7 +32,7 @@ const createOrder = async (orderData: OrdersInterface, user: JwtPayload) => {
     product.quantity -= orderData.quantity;
     await product.save(opts);
 
-    const transaction_id = `TXN-${uuidv4()}`;
+    const transaction_id = `TXN-${uuidv4().slice(0, 8)}`;
 
     orderData.sub_total = product.price * orderData.quantity;
     orderData.shipping_charge = 70;

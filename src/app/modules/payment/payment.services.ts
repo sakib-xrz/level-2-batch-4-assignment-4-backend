@@ -102,7 +102,7 @@ const VerifyPayment = async (payload) => {
     return `${config.frontend_base_url}/${config.payment.fail_url}`;
   }
 
-  await updatePaymentAndOrderStatus(response.tran_id, 'PAID', 'PAID');
+  await updatePaymentAndOrderStatus(response.tran_id, 'PAID', 'PAID', response);
 
   return `${config.frontend_base_url}/${config.payment.success_url}`;
 };

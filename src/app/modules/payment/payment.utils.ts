@@ -9,6 +9,7 @@ export const updatePaymentAndOrderStatus = async (
   transactionId: string,
   paymentStatus: 'PENDING' | 'PAID' | 'FAILED' | 'CANCELLED',
   orderStatus: 'PENDING' | 'PAID' | 'FAILED' | 'CANCELLED',
+  response?: Record<string, unknown>,
 ) => {
   const session = await mongoose.startSession(); // Start a transaction session
   session.startTransaction();
@@ -19,8 +20,7 @@ export const updatePaymentAndOrderStatus = async (
       { transaction_id: transactionId },
       {
         status: paymentStatus,
-        payment_gateway_data:
-          paymentStatus === 'PAID' ? { status: 'VALID' } : {},
+        payment_gateway_data: response || {},
       },
       { new: true, session },
     );
