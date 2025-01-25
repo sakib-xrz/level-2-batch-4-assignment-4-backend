@@ -24,6 +24,7 @@ const ProductsSchema = new mongoose.Schema<ProductsInterface>(
     description: { type: String, required: true },
     quantity: { type: Number, required: true },
     in_stock: { type: Boolean },
+    is_deleted: { type: Boolean, default: false },
   },
   {
     timestamps: true,

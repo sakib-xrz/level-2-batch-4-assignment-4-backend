@@ -8,4 +8,5 @@ export interface ProductsInterface {
   description: string;
   quantity: number;
   in_stock: boolean;
+  is_deleted: boolean;
 }

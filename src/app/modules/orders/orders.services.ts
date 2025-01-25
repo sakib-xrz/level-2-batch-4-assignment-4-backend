@@ -7,10 +7,15 @@ import { v4 as uuidv4 } from 'uuid';
 import { Payment } from '../payment/payment.model';
 
 async function createOrder(orderData: OrdersInterface) {
-  const product = await Product.findById(orderData.product);
+  const product = await Product.findOne({
+    _id: orderData.product,
+    is_deleted: false,
+  });
+
   if (!product) {
     throw new Error('Product not found');
   }
+
   if (product.quantity < orderData.quantity) {
     throw new AppError(400, 'Insufficient stock');
   }
