@@ -24,6 +24,7 @@ const OrdersSchema = new mongoose.Schema<OrdersInterface>(
     sub_total: { type: Number, required: true },
     shipping_charge: { type: Number, required: true },
     grand_total: { type: Number, required: true },
+    is_deleted: { type: Boolean, default: false },
   },
   {
     timestamps: true,

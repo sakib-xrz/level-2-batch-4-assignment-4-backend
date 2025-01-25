@@ -10,4 +10,5 @@ export interface OrdersInterface {
   sub_total: number;
   shipping_charge: number;
   grand_total: number;
+  is_deleted: boolean;
 }
