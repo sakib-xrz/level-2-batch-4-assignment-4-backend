@@ -69,9 +69,10 @@ const CreatePaymentIntent = async (order_id: string) => {
 };
 
 const VerifyPayment = async (payload) => {
-  console.log(payload);
-
   if (!payload.val_id || payload.status !== 'VALID') {
+    console.log('IPN request val_id', payload.val_id);
+    console.log('IPN request status', payload.status);
+
     if (payload.status === 'FAILED') {
       await updatePaymentAndOrderStatus(
         payload.transaction_id,
