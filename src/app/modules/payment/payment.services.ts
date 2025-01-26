@@ -97,9 +97,7 @@ const VerifyPayment = async (payload) => {
     val_id: payload.val_id,
   });
 
-  console.log('response', response);
-
-  if (response.status !== 'VALID') {
+  if (response.status !== 'VALIDATED') {
     await updatePaymentAndOrderStatus(response.tran_id, 'FAILED', 'FAILED');
     return `${config.frontend_base_url}/${config.payment.fail_url}`;
   }
