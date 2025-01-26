@@ -88,7 +88,8 @@ const VerifyPayment = (payload) => __awaiter(void 0, void 0, void 0, function* (
     const response = yield sslcz.validate({
         val_id: payload.val_id,
     });
-    if (response.status !== 'VALIDATED') {
+    if (response.status !==
+        (config_1.default.node_env === 'development' ? 'VALID' : 'VALIDATED')) {
         yield (0, payment_utils_1.updatePaymentAndOrderStatus)(response.tran_id, 'FAILED', 'FAILED');
         return `${config_1.default.frontend_base_url}/${config_1.default.payment.fail_url}`;
     }
