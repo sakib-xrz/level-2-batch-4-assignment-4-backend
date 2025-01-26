@@ -70,9 +70,6 @@ const CreatePaymentIntent = async (order_id: string) => {
 
 const VerifyPayment = async (payload) => {
   if (!payload.val_id || payload.status !== 'VALID') {
-    console.log('IPN request val_id', payload.val_id);
-    console.log('IPN request status', payload.status);
-
     if (payload.status === 'FAILED') {
       await updatePaymentAndOrderStatus(
         payload.transaction_id,
@@ -99,6 +96,8 @@ const VerifyPayment = async (payload) => {
   const response = await sslcz.validate({
     val_id: payload.val_id,
   });
+
+  console.log('response', response);
 
   if (response.status !== 'VALID') {
     await updatePaymentAndOrderStatus(response.tran_id, 'FAILED', 'FAILED');

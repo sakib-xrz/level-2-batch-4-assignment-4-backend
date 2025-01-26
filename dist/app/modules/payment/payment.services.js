@@ -74,8 +74,6 @@ const CreatePaymentIntent = (order_id) => __awaiter(void 0, void 0, void 0, func
 });
 const VerifyPayment = (payload) => __awaiter(void 0, void 0, void 0, function* () {
     if (!payload.val_id || payload.status !== 'VALID') {
-        console.log('IPN request val_id', payload.val_id);
-        console.log('IPN request status', payload.status);
         if (payload.status === 'FAILED') {
             yield (0, payment_utils_1.updatePaymentAndOrderStatus)(payload.transaction_id, 'FAILED', 'FAILED');
             return `${config_1.default.frontend_base_url}/${config_1.default.payment.fail_url}`;
@@ -90,6 +88,7 @@ const VerifyPayment = (payload) => __awaiter(void 0, void 0, void 0, function* (
     const response = yield sslcz.validate({
         val_id: payload.val_id,
     });
+    console.log('response', response);
     if (response.status !== 'VALID') {
         yield (0, payment_utils_1.updatePaymentAndOrderStatus)(response.tran_id, 'FAILED', 'FAILED');
         return `${config_1.default.frontend_base_url}/${config_1.default.payment.fail_url}`;
