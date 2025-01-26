@@ -20,13 +20,12 @@ const config_1 = __importDefault(require("../../config"));
 const Login = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const result = yield auth_services_1.default.Login(req.body);
     const { accessToken, refreshToken } = result;
-    const cookieOptions = {
+    res.cookie('REFRESH_TOKEN', refreshToken, {
         expires: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000), // 90 days
         httpOnly: true,
-        sameSite: true,
         secure: config_1.default.node_env === 'production',
-    };
-    res.cookie('REFRESH_TOKEN', refreshToken, cookieOptions);
+        sameSite: config_1.default.node_env === 'development' ? 'strict' : 'none',
+    });
     (0, sendResponse_1.default)(res, {
         success: true,
         statusCode: http_status_1.default.OK,
@@ -39,13 +38,12 @@ const Login = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, 
 const Register = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const result = yield auth_services_1.default.Register(req.body);
     const { accessToken, refreshToken } = result;
-    const cookieOptions = {
+    res.cookie('REFRESH_TOKEN', refreshToken, {
         expires: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000), // 90 days
         httpOnly: true,
-        sameSite: true,
         secure: config_1.default.node_env === 'production',
-    };
-    res.cookie('REFRESH_TOKEN', refreshToken, cookieOptions);
+        sameSite: config_1.default.node_env === 'development' ? 'strict' : 'none',
+    });
     (0, sendResponse_1.default)(res, {
         success: true,
         statusCode: http_status_1.default.CREATED,

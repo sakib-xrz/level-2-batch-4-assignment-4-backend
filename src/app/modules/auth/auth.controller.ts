@@ -9,14 +9,12 @@ const Login = catchAsync(async (req, res) => {
 
   const { accessToken, refreshToken } = result;
 
-  const cookieOptions = {
+  res.cookie('REFRESH_TOKEN', refreshToken, {
     expires: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000), // 90 days
     httpOnly: true,
-    sameSite: true,
     secure: config.node_env === 'production',
-  };
-
-  res.cookie('REFRESH_TOKEN', refreshToken, cookieOptions);
+    sameSite: config.node_env === 'development' ? 'strict' : 'none',
+  });
 
   sendResponse(res, {
     success: true,
@@ -33,14 +31,12 @@ const Register = catchAsync(async (req, res) => {
 
   const { accessToken, refreshToken } = result;
 
-  const cookieOptions = {
+  res.cookie('REFRESH_TOKEN', refreshToken, {
     expires: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000), // 90 days
     httpOnly: true,
-    sameSite: true,
     secure: config.node_env === 'production',
-  };
-
-  res.cookie('REFRESH_TOKEN', refreshToken, cookieOptions);
+    sameSite: config.node_env === 'development' ? 'strict' : 'none',
+  });
 
   sendResponse(res, {
     success: true,
