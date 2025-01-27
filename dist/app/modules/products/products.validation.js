@@ -35,10 +35,6 @@ const CreateValidation = zod_1.z.object({
             required_error: 'Category is required',
             invalid_type_error: 'Category must be a valid option',
         }),
-        description: zod_1.z.string({
-            required_error: 'Description is required',
-            invalid_type_error: 'Description must be a string',
-        }),
         quantity: zod_1.z
             .number({
             required_error: 'Quantity is required',
@@ -82,10 +78,6 @@ const CreateMultipleValidation = zod_1.z.object({
         category: zod_1.z.enum(['Mountain', 'Road', 'Hybrid', 'BMX', 'Electric'], {
             required_error: 'Category is required',
             invalid_type_error: 'Category must be a valid option',
-        }),
-        description: zod_1.z.string({
-            required_error: 'Description is required',
-            invalid_type_error: 'Description must be a string',
         }),
         quantity: zod_1.z
             .number({

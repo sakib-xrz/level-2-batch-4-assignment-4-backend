@@ -21,7 +21,7 @@ const ProductsSchema = new mongoose.Schema<ProductsInterface>(
       enum: ['Mountain', 'Road', 'Hybrid', 'BMX', 'Electric'],
       required: true,
     },
-    description: { type: String, required: true },
+    description: { type: String },
     quantity: { type: Number, required: true },
     in_stock: { type: Boolean },
     is_deleted: { type: Boolean, default: false },
