@@ -7,7 +7,7 @@ const GetMyProfile = async (user: JwtPayload) => {
   const result = await User.findOne({
     email: user.email,
     is_blocked: false,
-  });
+  }).select('-is_blocked -createdAt -updatedAt');
 
   if (!result) {
     throw new AppError(httpStatus.NOT_FOUND, 'User not found');
