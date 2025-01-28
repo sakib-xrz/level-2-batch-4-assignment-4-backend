@@ -78,7 +78,8 @@ const getMyOrders = (user, query) => __awaiter(void 0, void 0, void 0, function*
         .populate({
         path: 'customer',
         select: 'name email',
-    });
+    })
+        .select('-is_deleted -updatedAt');
     const total = yield queryBuilder.getCountQuery();
     return {
         meta: Object.assign({ total }, queryBuilder.getPaginationInfo()),
@@ -100,7 +101,8 @@ const getAllOrders = (query) => __awaiter(void 0, void 0, void 0, function* () {
         .populate({
         path: 'customer',
         select: 'name email',
-    });
+    })
+        .select('-is_deleted -updatedAt');
     const total = yield queryBuilder.getCountQuery();
     return {
         meta: Object.assign({ total }, queryBuilder.getPaginationInfo()),
