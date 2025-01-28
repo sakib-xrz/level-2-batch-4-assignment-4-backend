@@ -64,7 +64,7 @@ const createOrder = (orderData, user) => __awaiter(void 0, void 0, void 0, funct
     }
 });
 const getMyOrders = (user, query) => __awaiter(void 0, void 0, void 0, function* () {
-    const queryBuilder = new QueryBuilder_1.default(orders_model_1.Orders.find({ customer: user.id }), query);
+    const queryBuilder = new QueryBuilder_1.default(orders_model_1.Orders.find({ customer: user.id, is_deleted: false }), query);
     const orders = yield queryBuilder
         .search(['phone', 'transaction_id'])
         .filter()
@@ -87,7 +87,9 @@ const getMyOrders = (user, query) => __awaiter(void 0, void 0, void 0, function*
     };
 });
 const getAllOrders = (query) => __awaiter(void 0, void 0, void 0, function* () {
-    const queryBuilder = new QueryBuilder_1.default(orders_model_1.Orders.find(), query);
+    const queryBuilder = new QueryBuilder_1.default(orders_model_1.Orders.find({
+        is_deleted: false,
+    }), query);
     const orders = yield queryBuilder
         .search(['phone', 'transaction_id'])
         .filter()

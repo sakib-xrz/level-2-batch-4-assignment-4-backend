@@ -68,7 +68,7 @@ const getMyOrders = async (
   query: Record<string, unknown>,
 ) => {
   const queryBuilder = new QueryBuilder(
-    Orders.find({ customer: user.id }),
+    Orders.find({ customer: user.id, is_deleted: false }),
     query,
   );
 
@@ -100,7 +100,12 @@ const getMyOrders = async (
 };
 
 const getAllOrders = async (query: Record<string, unknown>) => {
-  const queryBuilder = new QueryBuilder(Orders.find(), query);
+  const queryBuilder = new QueryBuilder(
+    Orders.find({
+      is_deleted: false,
+    }),
+    query,
+  );
 
   const orders = await queryBuilder
     .search(['phone', 'transaction_id'])
