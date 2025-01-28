@@ -34,7 +34,7 @@ const GetAllCustomers = (query) => __awaiter(void 0, void 0, void 0, function* (
         .sort()
         .paginate()
         .fields()
-        .modelQuery.select('-password -createdAt -updatedAt');
+        .modelQuery.select('-password -updatedAt');
     const total = yield queryBuilder.getCountQuery();
     return {
         meta: Object.assign({ total }, queryBuilder.getPaginationInfo()),

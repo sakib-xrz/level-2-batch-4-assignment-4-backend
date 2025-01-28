@@ -26,7 +26,7 @@ const GetAllCustomers = async (query: Record<string, unknown>) => {
     .sort()
     .paginate()
     .fields()
-    .modelQuery.select('-password -createdAt -updatedAt');
+    .modelQuery.select('-password -updatedAt');
 
   const total = await queryBuilder.getCountQuery();
 
