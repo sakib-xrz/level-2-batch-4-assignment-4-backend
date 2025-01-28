@@ -85,7 +85,8 @@ const getMyOrders = async (
     .populate({
       path: 'customer',
       select: 'name email',
-    });
+    })
+    .select('-is_deleted -updatedAt');
 
   const total = await queryBuilder.getCountQuery();
 
@@ -114,7 +115,8 @@ const getAllOrders = async (query: Record<string, unknown>) => {
     .populate({
       path: 'customer',
       select: 'name email',
-    });
+    })
+    .select('-is_deleted -updatedAt');
 
   const total = await queryBuilder.getCountQuery();
 
