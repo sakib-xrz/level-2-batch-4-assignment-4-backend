@@ -21,6 +21,11 @@ const OrdersSchema = new mongoose.Schema<OrdersInterface>(
       enum: ['PENDING', 'PAID', 'FAILED', 'CANCELLED'],
       default: 'PENDING',
     },
+    status: {
+      type: String,
+      enum: ['PENDING', 'PROCESSING', 'SHIPPED', 'DELIVERED', 'CANCELLED'],
+      default: 'PENDING',
+    },
     transaction_id: { type: String, unique: true, required: true },
     sub_total: { type: Number, required: true },
     shipping_charge: { type: Number, required: true },
