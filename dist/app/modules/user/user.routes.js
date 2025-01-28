@@ -11,5 +11,6 @@ const router = express_1.default.Router();
 router
     .route('/profile')
     .get((0, auth_1.default)('ADMIN', 'CUSTOMER'), user_controller_1.default.GetMyProfile);
+router.get('/', (0, auth_1.default)('ADMIN'), user_controller_1.default.GetAllCustomers);
 router.patch('/:targatedUserId/block', (0, auth_1.default)('ADMIN'), user_controller_1.default.BlockUser);
 exports.UserRoutes = router;

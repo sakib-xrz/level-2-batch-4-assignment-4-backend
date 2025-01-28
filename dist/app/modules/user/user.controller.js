@@ -26,6 +26,16 @@ const GetMyProfile = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, v
         data: result,
     });
 }));
+const GetAllCustomers = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const result = yield user_service_1.default.GetAllCustomers(req.query);
+    (0, sendResponse_1.default)(res, {
+        success: true,
+        statusCode: http_status_1.default.OK,
+        message: 'Customers fetched successfully',
+        meta: result.meta,
+        data: result.data,
+    });
+}));
 const BlockUser = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { targatedUserId } = req.params;
     const user = req.user;
@@ -35,5 +45,5 @@ const BlockUser = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void
         statusCode: http_status_1.default.NO_CONTENT,
     });
 }));
-const UserController = { GetMyProfile, BlockUser };
+const UserController = { GetMyProfile, BlockUser, GetAllCustomers };
 exports.default = UserController;

@@ -15,6 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const user_model_1 = require("./user.model");
 const AppError_1 = __importDefault(require("../../errors/AppError"));
 const http_status_1 = __importDefault(require("http-status"));
+const QueryBuilder_1 = __importDefault(require("../../builder/QueryBuilder"));
 const GetMyProfile = (user) => __awaiter(void 0, void 0, void 0, function* () {
     const result = yield user_model_1.User.findOne({
         email: user.email,
@@ -24,6 +25,21 @@ const GetMyProfile = (user) => __awaiter(void 0, void 0, void 0, function* () {
         throw new AppError_1.default(http_status_1.default.NOT_FOUND, 'User not found');
     }
     return result;
+});
+const GetAllCustomers = (query) => __awaiter(void 0, void 0, void 0, function* () {
+    const queryBuilder = new QueryBuilder_1.default(user_model_1.User.find({ role: 'CUSTOMER' }), query);
+    const users = yield queryBuilder
+        .search(['name', 'email'])
+        .filter()
+        .sort()
+        .paginate()
+        .fields()
+        .modelQuery.select('-password -createdAt -updatedAt');
+    const total = yield queryBuilder.getCountQuery();
+    return {
+        meta: Object.assign({ total }, queryBuilder.getPaginationInfo()),
+        data: users,
+    };
 });
 const BlockUser = (targatedUserId, user) => __awaiter(void 0, void 0, void 0, function* () {
     const targatedUser = yield user_model_1.User.findById(targatedUserId);
@@ -35,5 +51,5 @@ const BlockUser = (targatedUserId, user) => __awaiter(void 0, void 0, void 0, fu
     }
     yield user_model_1.User.findByIdAndUpdate(targatedUserId, { is_blocked: true });
 });
-const UserService = { GetMyProfile, BlockUser };
+const UserService = { GetMyProfile, GetAllCustomers, BlockUser };
 exports.default = UserService;
