@@ -2,6 +2,7 @@ import { JwtPayload } from 'jsonwebtoken';
 import { User } from './user.model';
 import AppError from '../../errors/AppError';
 import httpStatus from 'http-status';
+import QueryBuilder from '../../builder/QueryBuilder';
 
 const GetMyProfile = async (user: JwtPayload) => {
   const result = await User.findOne({
@@ -14,6 +15,28 @@ const GetMyProfile = async (user: JwtPayload) => {
   }
 
   return result;
+};
+
+const GetAllCustomers = async (query: Record<string, unknown>) => {
+  const queryBuilder = new QueryBuilder(User.find({ role: 'CUSTOMER' }), query);
+
+  const users = await queryBuilder
+    .search(['name', 'email'])
+    .filter()
+    .sort()
+    .paginate()
+    .fields()
+    .modelQuery.select('-password -createdAt -updatedAt');
+
+  const total = await queryBuilder.getCountQuery();
+
+  return {
+    meta: {
+      total,
+      ...queryBuilder.getPaginationInfo(),
+    },
+    data: users,
+  };
 };
 
 const BlockUser = async (targatedUserId: string, user: JwtPayload) => {
@@ -30,6 +53,6 @@ const BlockUser = async (targatedUserId: string, user: JwtPayload) => {
   await User.findByIdAndUpdate(targatedUserId, { is_blocked: true });
 };
 
-const UserService = { GetMyProfile, BlockUser };
+const UserService = { GetMyProfile, GetAllCustomers, BlockUser };
 
 export default UserService;

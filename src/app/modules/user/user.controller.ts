@@ -16,6 +16,18 @@ const GetMyProfile = catchAsync(async (req, res) => {
   });
 });
 
+const GetAllCustomers = catchAsync(async (req, res) => {
+  const result = await UserService.GetAllCustomers(req.query);
+
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: 'Customers fetched successfully',
+    meta: result.meta,
+    data: result.data,
+  });
+});
+
 const BlockUser = catchAsync(async (req, res) => {
   const { targatedUserId } = req.params;
   const user = req.user;
@@ -28,6 +40,6 @@ const BlockUser = catchAsync(async (req, res) => {
   });
 });
 
-const UserController = { GetMyProfile, BlockUser };
+const UserController = { GetMyProfile, BlockUser, GetAllCustomers };
 
 export default UserController;
