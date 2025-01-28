@@ -49,4 +49,30 @@ const getAllOrders = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, v
         data: result.data,
     });
 }));
-exports.OrdersController = { createOrder, getMyOrders, getAllOrders };
+const chnageOrderStatus = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { order_id } = req.params;
+    const { status } = req.body;
+    const result = yield orders_services_1.OrdersService.chnageOrderStatus(order_id, status);
+    (0, sendResponse_1.default)(res, {
+        statusCode: http_status_1.default.OK,
+        success: true,
+        message: 'Order status updated successfully',
+        data: result,
+    });
+}));
+const deleteOrder = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { order_id } = req.params;
+    yield orders_services_1.OrdersService.deleteOrder(order_id);
+    (0, sendResponse_1.default)(res, {
+        statusCode: http_status_1.default.NO_CONTENT,
+        success: true,
+        message: 'Order deleted successfully',
+    });
+}));
+exports.OrdersController = {
+    createOrder,
+    getMyOrders,
+    getAllOrders,
+    chnageOrderStatus,
+    deleteOrder,
+};

@@ -21,4 +21,12 @@ router.get(
   OrdersController.getMyOrders,
 );
 
+router.patch(
+  '/:order_id/status',
+  auth('ADMIN'),
+  OrdersController.chnageOrderStatus,
+);
+
+router.delete('/:order_id', auth('ADMIN'), OrdersController.deleteOrder);
+
 export const OrdersRoutes = router;

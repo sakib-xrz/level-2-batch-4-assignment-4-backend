@@ -129,4 +129,38 @@ const getAllOrders = async (query: Record<string, unknown>) => {
   };
 };
 
-export const OrdersService = { createOrder, getMyOrders, getAllOrders };
+const chnageOrderStatus = async (order_id: string, status: string) => {
+  const order = await Orders.findOneAndUpdate(
+    { _id: order_id },
+    { status },
+    { new: true },
+  );
+
+  if (!order) {
+    throw new AppError(404, 'Order not found');
+  }
+
+  return order;
+};
+
+const deleteOrder = async (order_id: string) => {
+  const order = await Orders.findOneAndUpdate(
+    { _id: order_id },
+    { is_deleted: true },
+    { new: true },
+  );
+
+  if (!order) {
+    throw new AppError(404, 'Order not found');
+  }
+
+  return order;
+};
+
+export const OrdersService = {
+  createOrder,
+  getMyOrders,
+  getAllOrders,
+  chnageOrderStatus,
+  deleteOrder,
+};

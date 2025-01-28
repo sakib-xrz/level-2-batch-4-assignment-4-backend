@@ -15,4 +15,6 @@ router
     .post((0, auth_1.default)('CUSTOMER', 'ADMIN'), (0, validateRequest_1.default)(orders_validation_1.OrdersValidation.CreateValidation), orders_controller_1.OrdersController.createOrder)
     .get((0, auth_1.default)('ADMIN'), orders_controller_1.OrdersController.getAllOrders);
 router.get('/my-orders', (0, auth_1.default)('CUSTOMER', 'ADMIN'), orders_controller_1.OrdersController.getMyOrders);
+router.patch('/:order_id/status', (0, auth_1.default)('ADMIN'), orders_controller_1.OrdersController.chnageOrderStatus);
+router.delete('/:order_id', (0, auth_1.default)('ADMIN'), orders_controller_1.OrdersController.deleteOrder);
 exports.OrdersRoutes = router;

@@ -109,4 +109,24 @@ const getAllOrders = (query) => __awaiter(void 0, void 0, void 0, function* () {
         data: orders,
     };
 });
-exports.OrdersService = { createOrder, getMyOrders, getAllOrders };
+const chnageOrderStatus = (order_id, status) => __awaiter(void 0, void 0, void 0, function* () {
+    const order = yield orders_model_1.Orders.findOneAndUpdate({ _id: order_id }, { status }, { new: true });
+    if (!order) {
+        throw new AppError_1.default(404, 'Order not found');
+    }
+    return order;
+});
+const deleteOrder = (order_id) => __awaiter(void 0, void 0, void 0, function* () {
+    const order = yield orders_model_1.Orders.findOneAndUpdate({ _id: order_id }, { is_deleted: true }, { new: true });
+    if (!order) {
+        throw new AppError_1.default(404, 'Order not found');
+    }
+    return order;
+});
+exports.OrdersService = {
+    createOrder,
+    getMyOrders,
+    getAllOrders,
+    chnageOrderStatus,
+    deleteOrder,
+};
