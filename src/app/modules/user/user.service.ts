@@ -50,7 +50,9 @@ const BlockUser = async (targatedUserId: string, user: JwtPayload) => {
     throw new AppError(httpStatus.FORBIDDEN, 'You can not block yourself');
   }
 
-  await User.findByIdAndUpdate(targatedUserId, { is_blocked: true });
+  await User.findByIdAndUpdate(targatedUserId, {
+    is_blocked: targatedUser.is_blocked ? false : true,
+  });
 };
 
 const UserService = { GetMyProfile, GetAllCustomers, BlockUser };

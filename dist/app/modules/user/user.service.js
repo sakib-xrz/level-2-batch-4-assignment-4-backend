@@ -49,7 +49,9 @@ const BlockUser = (targatedUserId, user) => __awaiter(void 0, void 0, void 0, fu
     if (targatedUser._id.toString() === user._id.toString()) {
         throw new AppError_1.default(http_status_1.default.FORBIDDEN, 'You can not block yourself');
     }
-    yield user_model_1.User.findByIdAndUpdate(targatedUserId, { is_blocked: true });
+    yield user_model_1.User.findByIdAndUpdate(targatedUserId, {
+        is_blocked: targatedUser.is_blocked ? false : true,
+    });
 });
 const UserService = { GetMyProfile, GetAllCustomers, BlockUser };
 exports.default = UserService;
