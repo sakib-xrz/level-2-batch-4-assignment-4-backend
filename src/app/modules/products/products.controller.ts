@@ -77,6 +77,17 @@ const deleteProduct = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const getMinAndMaxPrice = catchAsync(async (req: Request, res: Response) => {
+  const result = await ProductsService.getMinAndMaxPrice();
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Min and max price retrieved successfully',
+    data: result,
+  });
+});
+
 export const ProductsController = {
   createProduct,
   createProducts,
@@ -84,4 +95,5 @@ export const ProductsController = {
   getProductById,
   updateProduct,
   deleteProduct,
+  getMinAndMaxPrice,
 };

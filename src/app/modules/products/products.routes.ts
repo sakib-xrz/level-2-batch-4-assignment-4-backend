@@ -23,6 +23,8 @@ router
     ProductsController.createProducts,
   );
 
+router.get('/price-range', ProductsController.getMinAndMaxPrice);
+
 router
   .route('/:id')
   .get(ProductsController.getProductById)

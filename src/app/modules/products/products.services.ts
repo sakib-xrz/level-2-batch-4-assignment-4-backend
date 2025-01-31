@@ -2,13 +2,13 @@ import AppError from '../../errors/AppError';
 import { ProductsInterface } from './products.interface';
 import { Product } from './products.model';
 
-export const createProduct = async (productData: ProductsInterface) => {
+const createProduct = async (productData: ProductsInterface) => {
   const product = new Product(productData);
   await product.save();
   return product.toObject();
 };
 
-export const createProducts = async (productsData: ProductsInterface[]) => {
+const createProducts = async (productsData: ProductsInterface[]) => {
   const products = await Product.insertMany(productsData);
   return products;
 };
@@ -92,7 +92,7 @@ const getProductById = async (productId: string) => {
   return result;
 };
 
-export const updateProduct = async (
+const updateProduct = async (
   productId: string,
   updates: Partial<ProductsInterface>,
 ) => {
@@ -110,7 +110,7 @@ export const updateProduct = async (
   return updatedProduct;
 };
 
-export const deleteProduct = async (productId: string) => {
+const deleteProduct = async (productId: string) => {
   const result = await Product.findByIdAndUpdate(productId, {
     is_deleted: true,
   });
@@ -122,6 +122,18 @@ export const deleteProduct = async (productId: string) => {
   return result;
 };
 
+const getMinAndMaxPrice = async () => {
+  const [minPrice, maxPrice] = await Promise.all([
+    Product.findOne({ is_deleted: false }).sort('price').select('price'),
+    Product.findOne({ is_deleted: false }).sort('-price').select('price'),
+  ]);
+
+  return {
+    minPrice: minPrice?.price || 0,
+    maxPrice: maxPrice?.price || 0,
+  };
+};
+
 export const ProductsService = {
   createProduct,
   createProducts,
@@ -129,4 +141,5 @@ export const ProductsService = {
   getProductById,
   updateProduct,
   deleteProduct,
+  getMinAndMaxPrice,
 };
