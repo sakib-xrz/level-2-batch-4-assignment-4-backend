@@ -23,7 +23,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.ProductsService = exports.deleteProduct = exports.updateProduct = exports.createProducts = exports.createProduct = void 0;
+exports.ProductsService = void 0;
 const AppError_1 = __importDefault(require("../../errors/AppError"));
 const products_model_1 = require("./products.model");
 const createProduct = (productData) => __awaiter(void 0, void 0, void 0, function* () {
@@ -31,12 +31,10 @@ const createProduct = (productData) => __awaiter(void 0, void 0, void 0, functio
     yield product.save();
     return product.toObject();
 });
-exports.createProduct = createProduct;
 const createProducts = (productsData) => __awaiter(void 0, void 0, void 0, function* () {
     const products = yield products_model_1.Product.insertMany(productsData);
     return products;
 });
-exports.createProducts = createProducts;
 const getAllProducts = (query) => __awaiter(void 0, void 0, void 0, function* () {
     const { search, priceRange, sortBy, sortOrder, page = 1, limit = 10, fields } = query, restFilters = __rest(query, ["search", "priceRange", "sortBy", "sortOrder", "page", "limit", "fields"]);
     const filterConditions = Object.assign({}, restFilters);
@@ -82,6 +80,16 @@ const getAllProducts = (query) => __awaiter(void 0, void 0, void 0, function* ()
         data,
     };
 });
+const getMinAndMaxPrice = () => __awaiter(void 0, void 0, void 0, function* () {
+    const [minPrice, maxPrice] = yield Promise.all([
+        products_model_1.Product.findOne({ is_deleted: false }).sort('price').select('price'),
+        products_model_1.Product.findOne({ is_deleted: false }).sort('-price').select('price'),
+    ]);
+    return {
+        minPrice: (minPrice === null || minPrice === void 0 ? void 0 : minPrice.price) || 0,
+        maxPrice: (maxPrice === null || maxPrice === void 0 ? void 0 : maxPrice.price) || 0,
+    };
+});
 const getProductById = (productId) => __awaiter(void 0, void 0, void 0, function* () {
     const result = yield products_model_1.Product.findOne({ _id: productId, is_deleted: false })
         .select('-__v -createdAt -updatedAt -is_deleted')
@@ -102,7 +110,6 @@ const updateProduct = (productId, updates) => __awaiter(void 0, void 0, void 0, 
     });
     return updatedProduct;
 });
-exports.updateProduct = updateProduct;
 const deleteProduct = (productId) => __awaiter(void 0, void 0, void 0, function* () {
     const result = yield products_model_1.Product.findByIdAndUpdate(productId, {
         is_deleted: true,
@@ -112,12 +119,12 @@ const deleteProduct = (productId) => __awaiter(void 0, void 0, void 0, function*
     }
     return result;
 });
-exports.deleteProduct = deleteProduct;
 exports.ProductsService = {
-    createProduct: exports.createProduct,
-    createProducts: exports.createProducts,
+    createProduct,
+    createProducts,
     getAllProducts,
+    getMinAndMaxPrice,
     getProductById,
-    updateProduct: exports.updateProduct,
-    deleteProduct: exports.deleteProduct,
+    updateProduct,
+    deleteProduct,
 };

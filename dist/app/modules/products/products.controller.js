@@ -47,6 +47,15 @@ const getAllProducts = (0, catchAsync_1.default)((req, res) => __awaiter(void 0,
         data: result.data,
     });
 }));
+const getMinAndMaxPrice = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const result = yield products_services_1.ProductsService.getMinAndMaxPrice();
+    (0, sendResponse_1.default)(res, {
+        statusCode: http_status_1.default.OK,
+        success: true,
+        message: 'Min and max price retrieved successfully',
+        data: result,
+    });
+}));
 const getProductById = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { id } = req.params;
     const result = yield products_services_1.ProductsService.getProductById(id);
@@ -82,6 +91,7 @@ exports.ProductsController = {
     createProduct,
     createProducts,
     getAllProducts,
+    getMinAndMaxPrice,
     getProductById,
     updateProduct,
     deleteProduct,

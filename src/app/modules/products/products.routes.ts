@@ -15,6 +15,8 @@ router
   )
   .get(ProductsController.getAllProducts);
 
+router.get('/price-range', ProductsController.getMinAndMaxPrice);
+
 router
   .route('/multiple')
   .post(
@@ -22,8 +24,6 @@ router
     validateRequest(ProductsValidation.CreateMultipleValidation),
     ProductsController.createProducts,
   );
-
-router.get('/price-range', ProductsController.getMinAndMaxPrice);
 
 router
   .route('/:id')

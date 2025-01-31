@@ -80,6 +80,18 @@ const getAllProducts = async (query: Record<string, unknown>) => {
   };
 };
 
+const getMinAndMaxPrice = async () => {
+  const [minPrice, maxPrice] = await Promise.all([
+    Product.findOne({ is_deleted: false }).sort('price').select('price'),
+    Product.findOne({ is_deleted: false }).sort('-price').select('price'),
+  ]);
+
+  return {
+    minPrice: minPrice?.price || 0,
+    maxPrice: maxPrice?.price || 0,
+  };
+};
+
 const getProductById = async (productId: string) => {
   const result = await Product.findOne({ _id: productId, is_deleted: false })
     .select('-__v -createdAt -updatedAt -is_deleted')
@@ -122,24 +134,12 @@ const deleteProduct = async (productId: string) => {
   return result;
 };
 
-const getMinAndMaxPrice = async () => {
-  const [minPrice, maxPrice] = await Promise.all([
-    Product.findOne({ is_deleted: false }).sort('price').select('price'),
-    Product.findOne({ is_deleted: false }).sort('-price').select('price'),
-  ]);
-
-  return {
-    minPrice: minPrice?.price || 0,
-    maxPrice: maxPrice?.price || 0,
-  };
-};
-
 export const ProductsService = {
   createProduct,
   createProducts,
   getAllProducts,
+  getMinAndMaxPrice,
   getProductById,
   updateProduct,
   deleteProduct,
-  getMinAndMaxPrice,
 };

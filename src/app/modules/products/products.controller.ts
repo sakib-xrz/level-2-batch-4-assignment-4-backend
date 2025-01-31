@@ -40,6 +40,17 @@ const getAllProducts = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const getMinAndMaxPrice = catchAsync(async (req: Request, res: Response) => {
+  const result = await ProductsService.getMinAndMaxPrice();
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Min and max price retrieved successfully',
+    data: result,
+  });
+});
+
 const getProductById = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
   const result = await ProductsService.getProductById(id);
@@ -77,23 +88,12 @@ const deleteProduct = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
-const getMinAndMaxPrice = catchAsync(async (req: Request, res: Response) => {
-  const result = await ProductsService.getMinAndMaxPrice();
-
-  sendResponse(res, {
-    statusCode: httpStatus.OK,
-    success: true,
-    message: 'Min and max price retrieved successfully',
-    data: result,
-  });
-});
-
 export const ProductsController = {
   createProduct,
   createProducts,
   getAllProducts,
+  getMinAndMaxPrice,
   getProductById,
   updateProduct,
   deleteProduct,
-  getMinAndMaxPrice,
 };

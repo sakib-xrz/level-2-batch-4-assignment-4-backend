@@ -14,6 +14,7 @@ router
     .route('/')
     .post((0, auth_1.default)('ADMIN'), (0, validateRequest_1.default)(products_validation_1.default.CreateValidation), products_controller_1.ProductsController.createProduct)
     .get(products_controller_1.ProductsController.getAllProducts);
+router.get('/price-range', products_controller_1.ProductsController.getMinAndMaxPrice);
 router
     .route('/multiple')
     .post((0, auth_1.default)('ADMIN'), (0, validateRequest_1.default)(products_validation_1.default.CreateMultipleValidation), products_controller_1.ProductsController.createProducts);
