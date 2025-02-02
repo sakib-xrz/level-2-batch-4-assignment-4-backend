@@ -69,6 +69,8 @@ const CreatePaymentIntent = async (order_id: string) => {
 };
 
 const VerifyPayment = async (payload) => {
+  console.log(payload);
+
   if (!payload.val_id || payload.status !== 'VALID') {
     if (payload.status === 'FAILED') {
       await updatePaymentAndOrderStatus(
