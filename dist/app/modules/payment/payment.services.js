@@ -73,14 +73,13 @@ const CreatePaymentIntent = (order_id) => __awaiter(void 0, void 0, void 0, func
     return sslResponse.GatewayPageURL;
 });
 const VerifyPayment = (payload) => __awaiter(void 0, void 0, void 0, function* () {
-    console.log(payload);
     if (!payload.val_id || payload.status !== 'VALID') {
         if (payload.status === 'FAILED') {
-            yield (0, payment_utils_1.updatePaymentAndOrderStatus)(payload.transaction_id, 'FAILED', 'FAILED');
+            yield (0, payment_utils_1.updatePaymentAndOrderStatus)(payload.tran_id, 'FAILED', 'FAILED');
             return `${config_1.default.frontend_base_url}/${config_1.default.payment.fail_url}`;
         }
         if (payload.status === 'CANCELLED') {
-            yield (0, payment_utils_1.updatePaymentAndOrderStatus)(payload.transaction_id, 'CANCELLED', 'CANCELLED');
+            yield (0, payment_utils_1.updatePaymentAndOrderStatus)(payload.tran_id, 'CANCELLED', 'CANCELLED');
             return `${config_1.default.frontend_base_url}/${config_1.default.payment.cancel_url}`;
         }
         throw new AppError_1.default(http_status_1.default.BAD_REQUEST, 'Invalid IPN request');

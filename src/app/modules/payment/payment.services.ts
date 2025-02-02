@@ -69,21 +69,15 @@ const CreatePaymentIntent = async (order_id: string) => {
 };
 
 const VerifyPayment = async (payload) => {
-  console.log(payload);
-
   if (!payload.val_id || payload.status !== 'VALID') {
     if (payload.status === 'FAILED') {
-      await updatePaymentAndOrderStatus(
-        payload.transaction_id,
-        'FAILED',
-        'FAILED',
-      );
+      await updatePaymentAndOrderStatus(payload.tran_id, 'FAILED', 'FAILED');
       return `${config.frontend_base_url}/${config.payment.fail_url}`;
     }
 
     if (payload.status === 'CANCELLED') {
       await updatePaymentAndOrderStatus(
-        payload.transaction_id,
+        payload.tran_id,
         'CANCELLED',
         'CANCELLED',
       );
